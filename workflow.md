@@ -1,5 +1,7 @@
 # Flicker Agent Workflow Core
 
+**Contract version: 1.0** — bumped on breaking changes (statuses, transitions, or document kinds). Forks: see the bring-your-own-tracker guide.
+
 This is the shared contract for all Flicker agent workflow skills. The stage skills (flicker-plan, flicker-implement, flicker-test, flicker-release, flicker-ship, flicker-recall) stay thin: they call into this workflow and use the public `flicker` CLI/API only.
 
 ## Requirements
@@ -99,6 +101,13 @@ Coordination model (the agent never talks to the reviewer directly — **GitHub 
 5. On approval, merge the PR, then `flicker ticket complete <id>`.
 
 Keep the reviewer pluggable: the workflow assumes *some* reviewer is installed on the repo, but never depends on a specific vendor's API.
+
+### Reviewer waiting protocol
+
+1. After pushing, poll `gh pr view <n> --json statusCheckRollup` (spacing polls ~30-60s apart).
+2. The reviewer has "posted" when a review or comment exists on the **current head SHA** — a review of a previous SHA does not count.
+3. **Polling budget: ~10 minutes per push.** If no review appears within budget, escalate: comment on the PR ("awaiting reviewer"), leave the ticket `in_progress`, and stop.
+4. If `statusCheckRollup` shows **no reviewer check at all** (not merely pending) after the first push, the reviewer is likely not installed on the repo. Escalate immediately — do not loop. (`flicker doctor` checks for a configured reviewer before a run.)
 
 ## Tags and parked work
 
@@ -223,7 +232,7 @@ Procedure:
    - Wait on the reviewer's status check for the current head SHA (`gh pr view <n> --json statusCheckRollup` until the reviewer's checks complete).
    - Read inline comments (`gh pr view <n> --json comments`; `gh api repos/<owner>/<repo>/pulls/<n>/comments`).
    - Fix actionable items; auto-resolve nitpicks; push. The reviewer re-reviews the delta. Repeat UNTIL CLEAN (0 actionable).
-   - CIRCUIT-BREAKER: stop and escalate (leave the PR open, comment the blocker) if there is no progress (same issues recur / actionable count stops dropping) or a token/time budget is exhausted. "Until clean" with a brake, not infinite.
+   - CIRCUIT-BREAKER: stop and escalate (leave the PR open, comment the blocker) if there is no progress (same issues recur / actionable count stops dropping), a token/time budget is exhausted, or **no reviewer check exists on the PR at all after the first push** (reviewer not installed — see "Reviewer waiting protocol"). "Until clean" with a brake, not infinite.
 8. SAFETY RAIL #2 — danger zones: if the change touches security-sensitive infrastructure, billing/money paths, or DB migrations (define the exact list per repo), DO NOT auto-merge. Mark the PR ready, comment, and escalate to a human.
 9. Auto-merge ONLY when: reviewer clean (0 actionable) AND tests green AND no danger-zone files. Then `gh pr merge <n> --squash` (this may deploy).
 10. `flicker ticket complete <id>` (→ `done`). Add a release memory note.
