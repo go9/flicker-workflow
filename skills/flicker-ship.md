@@ -1,31 +1,29 @@
 ---
 name: flicker-ship
-description: For projects tracked in Flicker Tickets. Autonomously take a selected Flicker ticket from pickup to merged — start, implement on a branch, open a PR, loop with the pluggable reviewer until clean, run tests, and auto-merge within safety rails (tests must be green; danger zones escalate to a human). Use when the user wants an agent to fully ship a ticket end to end.
+description: Take one approved Flicker ticket through implementation, testing, release gates, and authorized normal-path merge in one run. Use only for an explicit end-to-end ship request; do not use for vague ship language, planning, or danger-zone auto-merge.
 ---
+<!-- Generated from orlando-umbrella/flicker@84c115fcc08c5c765955a58c37a99744830a5cc8 by scripts/publish-workflow-mirror.sh. Do not edit. -->
 
 # flicker-ship
 
-Use the shared workflow contract in the `flicker-workflow` skill installed alongside this one, section `/flicker-ship`.
+Follow the companion `flicker-workflow` contract, section `/flicker-ship`.
 
-## Adapter behavior
+## Stage contract
 
-- Resolve an explicit ticket id or pick the top `selected_for_dev` ticket.
-- `flicker ticket start <id>`; implement only the `task_contract` on a feature branch.
-- Run the test suite; it MUST pass before any merge (safety rail #1).
-- Open a PR (author = the seat-holding account) stamped with the ticket id; write `implementation_notes`.
-- Review loop: wait on the reviewer's status check, read its comments, fix actionable items, auto-resolve nitpicks, push; repeat UNTIL CLEAN. Circuit-breaker on no-progress/budget -> escalate.
-- Danger zones (security-sensitive infrastructure / billing / DB migrations — define per repo) -> do NOT auto-merge; mark ready and escalate to a human (safety rail #2).
-- Auto-merge ONLY when reviewer is clean + tests green + no danger-zone files. Then `flicker ticket complete` + add a release memory note.
+- Confirm a named/selected ticket and scoped current-turn end-to-end authority; ambiguous requests require clarification.
+- Execute every implement, test, and release evidence contract without shortcuts. Explicitly record the dedicated worktree and its one writer in the ship handoff.
+- Require changed-area regression, current-head clean review, green CI, acceptance mapping, rollback/post-deploy notes, and no unresolved findings.
+- Circuit-break on red tests, missing/stale reviewer, non-decreasing findings, budget exhaustion, contradiction, or ambiguity; leave durable safe handoff evidence.
+- Never auto-merge a danger-zone change. Only the explicitly authorized non-danger path may merge; verify the outcome before `complete`.
 
-## Required commands
+## Required public commands
 
 ```bash
-flicker ticket list --json
 flicker ticket show <id> --json
 flicker ticket start <id> --json
-gh pr create --title "<summary> (flicker #<id>)" --body "<links the ticket>"
-gh pr view <n> --json reviews,comments,statusCheckRollup
-gh pr merge <n> --squash
+gh pr create --title "<summary> (flicker #<id>)" --body "<ticket, scope, evidence>"
+gh pr view <n> --json headRefOid,reviews,comments,statusCheckRollup
+gh pr merge <n> --squash # only within explicit scoped authority and outside danger zones
 flicker ticket complete <id> --json
-flicker memory add "<body>" --title "<title>" --json
+flicker memory add "<release evidence>" --title "Release note" --json
 ```

@@ -1,31 +1,30 @@
 ---
 name: flicker-test
-description: For projects tracked in Flicker Tickets. Review and validate Flicker ticket implementation by reading contracts and notes, running checks, writing review/regression/test verdict documents, creating child tickets for findings, and completing only passing work.
+description: Independently review and test implemented Flicker work, map acceptance to evidence, and issue PASS or REQUEST CHANGES. Use when asked to validate, regress, review, or test a ticket; do not use for initial coding or merge/release.
 ---
+<!-- Generated from orlando-umbrella/flicker@84c115fcc08c5c765955a58c37a99744830a5cc8 by scripts/publish-workflow-mirror.sh. Do not edit. -->
 
 # flicker-test
 
-Use the shared workflow contract in the `flicker-workflow` skill installed alongside this one, section `/flicker-test`.
+Follow the companion `flicker-workflow` contract, section `/flicker-test`.
 
-## Adapter behavior
+## Stage contract
 
-- Read `task_contract`, `implementation_notes`, and the PR first.
-- Drive the PR review loop: let the pluggable reviewer review, read its comments via `gh`, triage + fix + push; cap at ~2-3 rounds, then escalate. Review is rented, not built.
-- Run the narrowest meaningful local/regression checks (and the ticket's preview env where available).
-- Write `review`, `regression`, and `test_verdict` documents.
-- Create child tickets for substantive follow-up work instead of hiding findings in prose.
-- Do NOT complete or merge here — merge is the release gate. On PASS, hand to `/flicker-release`.
-- If checks fail, leave the ticket in progress and report blockers.
+- Read the current contract, implementation evidence, actual diff, PR, and head SHA; do not trust a handoff summary alone.
+- Re-run an original failure first for bug fixes. Every behavioral change gets relevant changed-area regression; risk only adds checks.
+- Map every acceptance id to a separately labeled expected proof and actual command/manual result, including explicit missing-proof entries, negative paths, and UI states when applicable. Green aggregate tests cannot hide an uncovered acceptance id.
+- Require reviewer evidence for the current head. Bound waits/rounds and stop on missing reviewer, stale review, or no progress.
+- Keep in-scope blockers on this ticket; create children only for out-of-scope independent follow-up.
+- Write `review`, `regression`, and an exact `PASS` or `REQUEST CHANGES` `test_verdict`. Never merge or complete here.
 
-## Required commands
+## Required public commands
 
 ```bash
 flicker ticket show <id> --json
 flicker ticket document read <id> task_contract --json
 flicker ticket document read <id> implementation_notes --json
-gh pr view <n> --json reviews,comments,statusCheckRollup
-flicker ticket document write <id> review --title "Review" --body "<markdown>" --json
-flicker ticket document write <id> regression --title "Regression" --body "<markdown>" --json
-flicker ticket document write <id> test_verdict --title "Test verdict" --body "<markdown>" --json
-flicker ticket create "<finding>" --parent <id> --body "<details>" --json
+gh pr view <n> --json headRefOid,reviews,comments,statusCheckRollup
+flicker ticket document write <id> review --title "Review" --body "<evidence>" --json
+flicker ticket document write <id> regression --title "Regression" --body "<criterion map>" --json
+flicker ticket document write <id> test_verdict --title "Test verdict" --body "<PASS or REQUEST CHANGES>" --json
 ```
