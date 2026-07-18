@@ -1,20 +1,22 @@
 ---
 name: flicker-recall
-description: For projects tracked in Flicker Tickets. Recall Flicker tickets, current documents, and project memory with source labels. Use when the user asks what was decided, what tickets exist, why something changed, or to search Flicker memory.
+description: Retrieve and explain existing Flicker tickets, current document heads, history, and memory with provenance. Use when asked what exists, changed, or was decided and why; do not use to create a plan or mutate workflow state.
 ---
+<!-- Generated from orlando-umbrella/flicker@84c115fcc08c5c765955a58c37a99744830a5cc8 by scripts/publish-workflow-mirror.sh. Do not edit. -->
 
 # flicker-recall
 
-Use the shared workflow contract in the `flicker-workflow` skill installed alongside this one, section `/flicker-recall`.
+Follow the companion `flicker-workflow` contract, section `/flicker-recall`.
 
-## Adapter behavior
+## Stage contract
 
-- Search Flicker memory and current ticket list.
-- Label every answer as current ticket, current document, historical event, or superseded event when available.
-- Prefer current ticket fields and current document heads over historical events when they conflict.
-- If evidence is incomplete, say so and suggest the next search or ticket/document to inspect.
+- Search targeted tickets and memory, then read relevant current document heads; inspect history only when needed.
+- Label evidence as current ticket, current document, historical event, or superseded event.
+- Prefer current ticket fields and current heads. Expose contradictions or uncertainty instead of blending versions; for each conflict, name both source/version provenances, the differing claims, and why the current source wins or the claim remains unconfirmed.
+- Return concise claims with ticket/document/version provenance and the next targeted read when evidence is incomplete.
+- Do not create tickets, rewrite planning documents, select work, or change status.
 
-## Required commands
+## Required public commands
 
 ```bash
 flicker memory search "<query>" --json
