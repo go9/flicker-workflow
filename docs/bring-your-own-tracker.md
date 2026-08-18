@@ -45,7 +45,7 @@ Linear, Jira, and friends map the same way through their CLIs/APIs; the statuses
 
 1. Fork this repo.
 2. Rewrite the **Required commands** blocks in each skill under [`skills/`](../skills/) and the command examples in [workflow.md](../workflow.md) to your tracker's equivalents. Everything outside those blocks — adapter behavior, hard rules, gates — stays.
-3. Install the skills into your harness by hand (each file in `skills/` is a complete skill document: Claude Code reads `.claude/skills/<name>/SKILL.md`, Codex reads `AGENTS.md`, Pi reads `.pi/skills/<name>.md`).
+3. Install each `skills/<name>/SKILL.md` into your harness by hand: Claude Code reads `.claude/skills/<name>/SKILL.md`, Codex reads its `AGENTS.md` skill index, and Pi reads `.pi/skills/<name>/SKILL.md`.
 4. Keep the hard rules. Especially: no implementation before an approved contract, and no merge/deploy without explicit human approval. They are the point.
 
 ## What not to fork away

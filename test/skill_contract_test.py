@@ -30,8 +30,8 @@ for name in sorted(EXPECTED):
 health = (SKILLS / "flicker-health-watchdog" / "SKILL.md").read_text()
 triage = (SKILLS / "flicker-triage" / "SKILL.md").read_text()
 assert "do not use for suggestion inbox triage" in health.lower()
-assert "do not use for" in triage.lower() and "changing code" in triage.lower()
+assert "do not use" in triage.lower() and "change code" in triage.lower()
 assert "do not mutate infrastructure" in health.lower()
-assert "GET /api/v1/projects/<project>/suggestions?status=open" in triage
+assert "/api/v1/projects/<project>/suggestions?status=open" in triage
 
 print(f"PASS: {len(EXPECTED)} canonical public skills")

@@ -47,7 +47,7 @@ The full contract — canonical statuses, transitions, document kinds, the PR + 
 
 ## Repository layout
 
-- [`skills/`](skills/) — editable canonical workflow contract and skills, each in `<name>/SKILL.md` form for public import.
+- [`skills/`](skills/) — editable canonical workflow contract and skills, each in `<name>/SKILL.md` form for public import. Flat `skills/<name>.md` files remain compatibility copies for existing raw-path consumers.
 - [`workflow.md`](workflow.md) — readable projection of the shared contract.
 - Released Flicker CLI binaries vendor an immutable public commit from this repository for offline `flicker skill install --workflow`.
 - [`docs/bring-your-own-tracker.md`](docs/bring-your-own-tracker.md) — fork the workflow, swap Flicker for your tracker
