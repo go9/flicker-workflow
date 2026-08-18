@@ -2,7 +2,6 @@
 name: flicker-recall
 description: Retrieve and explain existing Flicker tickets, current document heads, history, and memory with provenance. Use when asked what exists, changed, or was decided and why; do not use to create a plan or mutate workflow state.
 ---
-<!-- Generated from orlando-umbrella/flicker@84c115fcc08c5c765955a58c37a99744830a5cc8 by scripts/publish-workflow-mirror.sh. Do not edit. -->
 
 # flicker-recall
 

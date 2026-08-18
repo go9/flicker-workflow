@@ -2,7 +2,6 @@
 name: flicker-release
 description: Adversarially verify release readiness and perform only explicitly authorized merge/deploy actions for tested Flicker work. Use when asked for readiness, merge, deploy, publish, release notes, or rollback planning; do not use for rollback execution, coding, or full pickup-to-ship automation.
 ---
-<!-- Generated from orlando-umbrella/flicker@84c115fcc08c5c765955a58c37a99744830a5cc8 by scripts/publish-workflow-mirror.sh. Do not edit. -->
 
 # flicker-release
 
@@ -10,6 +9,8 @@ Follow the companion `flicker-workflow` contract, section `/flicker-release`.
 
 ## Stage contract
 
+- Begin by searching memory for this work and REPORT what came back, including "nothing relevant" — a stage that silently found nothing is indistinguishable from one that never looked. Treat `historical` hits as prior decisions (read them, never present them as current) and `unknown` as unresolvable, never as current.
+- Before finishing, write a memory note IF you learned something that would change a future decision — a root cause, a rejected approach and why, a constraint found the hard way, a false claim corrected. Do not write status updates or restatements of the diff; noise is what makes a memory system worthless.
 - Read current contract/evidence plus actual PR head, reviewer, CI, and diff.
 - Try to refute readiness: stale head, uncovered criterion, scope drift, failing check, danger zone, data/migration risk, or absent rollback/post-deploy plan.
 - Write `release` as `READY` or `NOT READY` with current head SHA, current-head review/CI/acceptance evidence, evidence versions, authority status, and risk. Separately label the exact gated merge/deploy command and the safe current action; without authority, never present the gated command as the action to run.
