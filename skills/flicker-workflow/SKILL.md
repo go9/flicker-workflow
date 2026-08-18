@@ -7,7 +7,7 @@ description: Shared contract for the seven Flicker lifecycle skills. Load it onl
 
 **Contract version: 1.1.** Breaking changes are changes to statuses, transitions, document kinds, or release authority.
 
-This file is the **single editable workflow source**. `packages/flicker-agent/skills/*/SKILL.md` are the editable stage adapters. `npm run sync` projects both into `cli/skill/workflow/`; never hand-edit that generated directory. Pi, Claude Code, Codex, and the CLI bundle must all install this behavior.
+This public repository is the **single editable workflow source**. `skills/flicker-workflow/SKILL.md` owns the shared contract; sibling `skills/*/SKILL.md` files own stage adapters. Released Flicker CLI/package sources vendor an immutable commit from this repository and verify byte parity before generating harness projections. Never edit vendored or generated copies directly.
 
 ## Invariants
 
