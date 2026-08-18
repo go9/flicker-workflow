@@ -1,4 +1,7 @@
-<!-- Generated from orlando-umbrella/flicker@84c115fcc08c5c765955a58c37a99744830a5cc8 by scripts/publish-workflow-mirror.sh. Do not edit. -->
+---
+name: flicker-workflow
+description: Shared contract for the seven Flicker lifecycle skills. Load it only when a Flicker stage skill needs canonical statuses, evidence templates, safety gates, or stage procedures.
+---
 
 # Flicker Agent Workflow Core
 
@@ -36,7 +39,10 @@ flicker ticket defer <id> --json
 flicker ticket document read <id> <kind> [--history] --json
 flicker ticket document write <id> <kind> --title "<title>" --body "<markdown>" --json
 flicker memory search "<query>" --json
-flicker memory add "<body>" --title "<title>" --json
+flicker memory search "<query>" --current-only --json  # drop superseded answers
+flicker memory expand ticket <id> --depth 1 --json     # what a record connects to
+flicker memory write "<learning>" --ticket <id> --json
+flicker memory add "<body>" --title "<title>" --json    # legacy alias of write
 gh pr create --title "<summary> (flicker #<id>)" --body "<ticket, scope, evidence>"
 gh pr view <n> --json headRefOid,reviews,comments,statusCheckRollup
 gh pr merge <n> --squash # explicit current-turn authority only
@@ -123,6 +129,69 @@ Record ticket/contract version; one-writer owner; branch/worktree; base SHA and 
 
 Record head SHA, acceptance coverage, current-head reviewer and CI state, migration/data/danger-zone analysis, rollback plan, post-deploy checks, explicit authority status, and remaining risk. Record both the exact gated merge/deploy command and a separately labeled safe current action; without current-turn authority, the gated command is evidence only and must not be presented as the action to run. Missing or stale evidence produces `NOT READY`, never an inferred pass.
 
+## Memory: read before deciding, write on learning
+
+Memory is not documentation you file at the end. It is the reason the same
+conclusions do not get re-derived every session, and it only works if both
+halves happen.
+
+### Read gate (every stage)
+
+Begin each stage by searching memory for the work at hand, and REPORT WHAT
+CAME BACK — including "nothing relevant", which is a real answer and must be
+stated rather than skipped. A stage that silently found nothing is
+indistinguishable from a stage that never looked.
+
+Results carry a temporal state. A `historical` hit is still worth reading —
+it is what was decided before, and its replacement is named — but never
+present it as current. Never present `unknown` as current either: it means the
+record was superseded and the replacement could not be read.
+
+Use `expand` when a hit mentions something it does not explain. That is the
+whole reason edges exist: the decision that caused X is often one link away
+and shares no vocabulary with your query.
+
+### Write trigger (on learning, not on schedule)
+
+Write a memory note when you learn something that would CHANGE A FUTURE
+DECISION:
+
+- a root cause, especially a non-obvious one
+- an approach that was tried and rejected, and why
+- a constraint discovered the hard way
+- a claim in the docs or a ticket that turned out to be false
+
+Do NOT write: status updates, restatements of the diff, "started work on X",
+or anything the ticket already says. Noise is the failure mode that kills a
+memory system — the read gate starts returning garbage and agents learn to
+skip it. If you would not want to read it in six months, do not write it.
+
+### Supersession over deletion
+
+When a new learning contradicts an old one, do not delete or edit the old
+note. Close the old ticket by supersession (`flicker ticket close <id>
+--disposition superseded --superseded-by <new>`) so the wrong answer stays
+visible with its correction attached. "We tried that and it failed" is exactly
+the thing worth keeping.
+
+## Agent config freshness (stage start)
+
+A project's agent config — skills, MCP specs, rules — lives in the Flicker library and reaches a working copy only when `flicker harness sync` writes it there. So a checkout can be running last month's instructions while the library has moved on, and nothing inside a session ever says so: the skills load, they are simply the wrong ones.
+
+`/flicker-plan`, `/flicker-implement`, and `/flicker-ship` therefore START by checking freshness:
+
+```bash
+flicker harness sync --check   # exit 0 fresh, exit 1 stale, writes nothing
+flicker harness doctor         # deeper: reads the DISK, not the intent
+```
+
+Rules:
+
+- **Report the result, including "fresh".** A check that speaks up only when it is unhappy is indistinguishable from one that never ran.
+- **Never hard-fail a human's stage on it.** Stale config is a finding to surface, not a gate. Name what is stale, offer `flicker harness sync`, and continue the stage.
+- **Name the legitimate skips instead of hiding them.** No project bound to this directory, and no agent config assigned to the project, are both normal — say which one happened rather than reporting nothing.
+- **Reach for `doctor` when `--check` is clean but the config still looks wrong**, and whenever the work itself adds or changes agent config. `--check` compares against what the last sync recorded; `doctor` compares against the bytes on disk, so it is the one that catches a skill file that was edited or emptied, an MCP server with no harness registration, a project-only entry assigned org-wide, and a description index over budget. Drift and scope findings exit 1; prerequisite and budget findings are warnings and exit 0.
+
 ## Review and danger-zone gates
 
 The PR stays `in_progress`. Use the repository's pluggable reviewer through GitHub rather than creating a bespoke review engine. A reviewer response counts only when it covers the **current head SHA** (`headRefOid`). If no reviewer check exists after the first push, stop immediately. Otherwise use the bounded wait and progress circuit breaker above.
@@ -141,6 +210,8 @@ Parked work remains inside the same lifecycle: leave future work in `backlog` wi
 
 **Use for:** shaping, scoping, researching, ticketing, or preparing work. **Not for:** executing an already-approved contract or merely recalling prior decisions.
 
+**Stage start:** run `flicker harness sync --check` and report the result, per *Agent config freshness*. Planning a project on stale instructions is planning against the wrong constraints. Never block the stage on it.
+
 1. Run Minimalist; identify the smallest useful outcome and appetite.
 2. Search tickets and memory. Adopt a matching ticket or create one.
 3. Read the ticket and all current planning heads before overwriting any document.
@@ -155,6 +226,8 @@ Output ticket id, document versions, repository and upstream evidence, target pu
 ## `/flicker-implement`
 
 **Use for:** coding an approved `selected_for_dev` or `in_progress` ticket. **Not for:** planning, independent acceptance review, or release.
+
+**Stage start:** run `flicker harness sync --check` and report the result, per *Agent config freshness*. Never block the stage on it.
 
 1. Read ticket plus current `feature_brief`, `plan_consensus`, `task_contract`, and `design`. Stop on contradictions or staleness.
 2. Verify approved status, intended branch/worktree, clean scope, base SHA, and a relevant green baseline. If selected, run `start`.
@@ -191,6 +264,8 @@ Output one-writer owner, branch/worktree, exact baseline command/result (includi
 
 **Use for:** an explicit request to take one named/selected ticket through implement, test, release, and normal-path merge in one run. **Not for:** vague “ship” language, planning, danger-zone auto-merge, or bypassing evidence.
 
+**Stage start:** run `flicker harness sync --check` and report the result, per *Agent config freshness*. An autonomous run is exactly where nobody is watching the instructions it is following. Never block the run on it.
+
 1. Confirm the request grants scoped current-turn end-to-end authority for this ticket; otherwise ask. Read current truth and run all `/flicker-implement`, `/flicker-test`, and `/flicker-release` contracts.
 2. Use a dedicated worktree and one writer. Require changed-area regression, complete evidence, current-head clean review, green CI, and no unresolved findings.
 3. Stop on red tests, missing reviewer, stale evidence, no progress, exhausted budget, ambiguity, or a danger zone. Leave the PR/ticket safe and report the next command.
@@ -205,3 +280,30 @@ Output one-writer owner, branch/worktree, exact baseline command/result (includi
 3. Prefer current fields/heads; expose contradictions, uncertainty, and missing evidence rather than blending versions.
 4. For every contradiction, name both sources and versions/timestamps when available, quote or summarize the conflicting claims, and state why the current source wins or why the claim remains unconfirmed.
 5. Return a concise answer with ticket/document/version provenance and the next targeted read if evidence is incomplete.
+
+## `/flicker-health-watchdog`
+
+**Use for:** read-only audits of live Flicker infrastructure and hosted-project health. **Not for:** suggestion inbox triage, code changes, restarts, deploys, secret changes, scaling, or destructive remediation.
+
+1. Confirm organization/project/resource scope and current credential.
+2. Read current Flicker resource, deploy, log, config-provenance, and documented functional-probe evidence. External telemetry and repository CI are enrichment only.
+3. Label each resource `green`, `yellow`, `red`, or `unknown`; cite strongest live evidence and never infer health from quiet logs or green CI alone.
+4. Preserve platform invariants: no manual `DATABASE_URL`, no secret values, no legacy-host assumptions, and no write probes.
+5. Return resource, status, evidence, risk, and next safe action. Recommend `/flicker-plan` for tracked work; mutate no ticket unless separately authorized.
+
+This stage and `/flicker-triage` are intentionally distinct: watchdog reads infrastructure; triage mutates suggestion disposition.
+
+## `/flicker-triage`
+
+**Use for:** turning a project's open end-user suggestions into grouped reports linked to tickets, plus written rejections. **Not for:** scoping an accepted ticket, retrieving history, or changing code.
+
+1. Resolve the project, then read the open inbox with `GET /api/v1/projects/<project>/suggestions?status=open`. Page backwards with `before_id` until the inbox is exhausted or the agreed batch size is reached. Reporter identity is deliberately absent from this list; do not try to reconstruct it.
+2. Read `summary` and `enrichment.candidates` as cheap cloud hints. A candidate is `{"type": "ticket" | "suggestion", "id": N, "confidence": 0.0-1.0, "reason": "..."}` and links nothing by itself; confirm or discard each one against the real ticket or suggestion before acting on it. Absent enrichment is normal, not an error.
+3. Group the batch into clusters that share one underlying cause. Wording similarity is not a cluster; a shared cause is.
+4. Before minting any ticket, search existing work with `flicker ticket list`, `flicker memory search`, and `flicker ticket show` on every plausible hit, explicitly including `in_progress` and recently completed tickets. A new report of a known problem links to that ticket; a rival ticket splits the notification cohort and the evidence.
+5. Accept every report in a cluster against one ticket id: `PATCH /api/v1/suggestions/<id>` with `action=accept` and `ticket_id=<id>`. Accept is valid only from `open`, the ticket must belong to the same project, and it writes a linked event on the ticket. Create a ticket first only when no existing ticket covers the cluster; the created ticket enters `backlog` and is scoped by `/flicker-plan`, not here.
+6. Reject only what will not be worked: `action=reject` with a `rejection_reason` written for the person who sent the report. Name their specific report, say what happens instead, and stay kind. Reused boilerplate is a defect, not a shortcut.
+7. Rank accepted clusters on evidence in hand — report count, severity, blast radius, spread across sources. Public vote counts are the intended priority signal once the public board ships; treat that as forward-looking and never depend on the field today.
+8. Record each confirmed diagnosis in memory with provenance — suggestion ids, the linked ticket, what was actually checked — so the next pass starts from the answer rather than the raw text.
+
+Deep reasoning runs locally on the operator's own subscription; the cloud does only cheap enrichment. This stage mutates suggestion state and creates tickets. It never edits code, pushes, deploys, merges, or moves a ticket through delivery statuses.

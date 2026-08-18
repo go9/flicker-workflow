@@ -20,7 +20,7 @@ flicker skill install --workflow --global
 #    then /flicker-implement, /flicker-test, /flicker-release
 ```
 
-That's the entire setup. The skills ship embedded in the CLI binary — no clone, no network, idempotent re-runs.
+That's the entire setup. This repository is the editable canonical source; released CLI binaries vendor pinned copies so installation needs no clone or network access.
 
 ## The shape of it
 
@@ -32,6 +32,8 @@ That's the entire setup. The skills ship embedded in the CLI binary — no clone
 | **Release** | `flicker-release` | Verify evidence, then merge **only with explicit human approval** (merge may deploy) |
 | **Ship** | `flicker-ship` | The autonomous end-to-end loop, inside safety rails: tests must be green, danger zones escalate to a human |
 | **Recall** | `flicker-recall` | Search tickets, current documents, and historical memory with provenance labels |
+| **Triage** | `flicker-triage` | Group end-user suggestions, link accepted reports to tickets, and write reporter-facing rejections |
+| **Health watchdog** | `flicker-health-watchdog` | Read live Flicker infrastructure state and report evidence without mutation |
 
 The full contract — canonical statuses, transitions, document kinds, the PR + review loop, and every stage procedure — is in [workflow.md](workflow.md).
 
@@ -45,10 +47,19 @@ The full contract — canonical statuses, transitions, document kinds, the PR + 
 
 ## Repository layout
 
-- [`workflow.md`](workflow.md) — the shared stage contract (the substance)
-- [`skills/`](skills/) — readable mirror of the shipped skills. **The CLI is canonical**: `flicker skill install --workflow` installs exactly these, embedded in the binary you already have.
+- [`skills/`](skills/) — editable canonical workflow contract and skills, each in `<name>/SKILL.md` form for public import.
+- [`workflow.md`](workflow.md) — readable projection of the shared contract.
+- Released Flicker CLI binaries vendor an immutable public commit from this repository for offline `flicker skill install --workflow`.
 - [`docs/bring-your-own-tracker.md`](docs/bring-your-own-tracker.md) — fork the workflow, swap Flicker for your tracker
 - [`docs/document-format.md`](docs/document-format.md) — the document/memory interchange format
+
+## Validate
+
+```bash
+python3 test/skill_contract_test.py
+```
+
+This checks skill inventory, frontmatter, public-safe paths, editable-source provenance, and health/triage separation.
 
 ## Not using Flicker?
 
