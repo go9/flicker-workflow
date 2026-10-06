@@ -12,7 +12,7 @@ Follow the companion `flicker-workflow` contract, section `/flicker-ship`.
 - START by checking agent-config freshness: `flicker harness sync --check` (exit 0 fresh, exit 1 stale, writes nothing). REPORT the result either way, including "fresh" and including a legitimate skip. NEVER block the run on it. An autonomous run is exactly where nobody is watching which instructions it is following.
 - Confirm a named/selected ticket and scoped current-turn end-to-end authority; ambiguous requests require clarification.
 - Execute every implement, test, and release evidence contract without shortcuts. Explicitly record the dedicated worktree and its one writer in the ship handoff.
-- Require changed-area regression, current-head clean review, green CI, acceptance mapping, rollback/post-deploy notes, and no unresolved findings.
+- Require changed-area regression, current-head clean review, green CI, acceptance mapping, rollback/post-deploy notes, and no unresolved findings. Reviewer evidence may be a Flicker ticket `review` document whose `Head SHA` exactly matches the PR `headRefOid` and whose verdict is `CLEAN`, in place of a PR-Agent comment. Missing or stale evidence stops the run; after any new commit, rerun `/flicker-review`. `FINDINGS` must be resolved and reviewed at the new head.
 - Circuit-break on red tests, missing/stale reviewer, non-decreasing findings, budget exhaustion, contradiction, or ambiguity; leave durable safe handoff evidence.
 - Never auto-merge a danger-zone change. Only the explicitly authorized non-danger path may merge; verify the outcome before `complete`.
 

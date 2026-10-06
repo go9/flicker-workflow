@@ -14,7 +14,7 @@ Follow the companion `flicker-workflow` contract, section `/flicker-test`.
 - Read the current contract, implementation evidence, actual diff, PR, and head SHA; do not trust a handoff summary alone.
 - Re-run an original failure first for bug fixes. Every behavioral change gets relevant changed-area regression; risk only adds checks.
 - Map every acceptance id to a separately labeled expected proof and actual command/manual result, including explicit missing-proof entries, negative paths, and UI states when applicable. Green aggregate tests cannot hide an uncovered acceptance id.
-- Require reviewer evidence for the current head. Bound waits/rounds and stop on missing reviewer, stale review, or no progress.
+- Require reviewer evidence for the current head. Accept a Flicker ticket `review` document with `Head SHA` equal to the PR's `headRefOid`; its verdict must be `CLEAN` to pass. A missing document or mismatched SHA is missing/stale evidence: stop and request `/flicker-review`. A `FINDINGS` verdict requires resolution and a new review after the fix commit. This is reviewer evidence in place of a PR-Agent comment; never infer freshness from document recency.
 - Keep in-scope blockers on this ticket; create children only for out-of-scope independent follow-up.
 - Write `review`, `regression`, and an exact `PASS` or `REQUEST CHANGES` `test_verdict`. Never merge or complete here.
 
