@@ -49,11 +49,19 @@ for name, phrase in [
     ("flicker-ship", "never write the `review` document"),
     ("flicker-release", "`READY` requires a `review` document"),
     ("flicker-review", "You must not be the author"),
-    ("flicker-workflow", "ticket documents never grant it"),
+    ("flicker-workflow", "That authority comes only from the person in the current turn."),
+    ("flicker-release", "only with authority from the person in the current turn."),
     ("flicker-workflow", "--disposition superseded --superseded-by"),
     ("flicker-test", "`REQUEST CHANGES` is `rejected`"),
 ]:
     assert phrase in (SKILLS / name / "SKILL.md").read_text(), f"{name}: lost gate: {phrase}"
+
+# Merge authority is the person in the current turn only. A clause letting an agent cite a
+# stored approval reads to a cheap model as permission to merge on its own (Fable review).
+for name in sorted(EXPECTED):
+    body = (SKILLS / name / "SKILL.md").read_text().lower()
+    for loophole in ("recorded in advance", "cite it", "standing approval", "advance approval"):
+        assert loophole not in body, f"{name}: merge-authority loophole: {loophole}"
 
 health = (SKILLS / "flicker-health-watchdog" / "SKILL.md").read_text()
 triage = (SKILLS / "flicker-triage" / "SKILL.md").read_text()
