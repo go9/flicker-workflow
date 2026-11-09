@@ -1,6 +1,6 @@
 ---
 name: flicker-implement
-description: Implement an approved Flicker task contract test-first in a worktree, with baseline, PR, and implementation evidence. Use when asked to code or continue a selected/in-progress ticket; do not use for planning, independent verdicts, or release.
+description: Implement an approved Flicker task contract test-first, with baseline, worktree, scoped code, tests, PR, and implementation evidence. Use when asked to code or continue a selected/in-progress ticket; do not use for planning, independent verdicts, or release.
 ---
 
 # flicker-implement
