@@ -26,16 +26,16 @@ That's the entire setup. This repository is the editable canonical source; relea
 
 | Stage | Skill | What it owns |
 |---|---|---|
-| **Plan** | `flicker-plan` | Search existing work first, shape scope, write `feature_brief` / `plan_consensus` / `task_contract`, select approved work for dev |
-| **Implement** | `flicker-implement` | Feature branch in a dedicated worktree, code only the contract, open a PR, write `implementation_notes` |
-| **Test** | `flicker-test` | Drive the PR-review loop with a pluggable AI reviewer, run regression, write a `test_verdict` |
+| **Plan** | `flicker-plan` | Check whether it already exists, shape the smallest useful scope, write `feature_brief` / `plan_consensus` / `task_contract`, ask the owner late and little, select approved work |
+| **Implement** | `flicker-implement` | Dedicated worktree, failing test first (proved by reverting the fix), code only the contract, open a PR, write `implementation_notes` |
+| **Test** | `flicker-test` | Re-check the builder's claims, map every acceptance row to evidence, check the current-head review, write a `test_verdict` |
 | **Release** | `flicker-release` | Verify evidence, then merge **only with explicit human approval** (merge may deploy) |
 | **Ship** | `flicker-ship` | The autonomous end-to-end loop, inside safety rails: tests must be green, danger zones escalate to a human |
 | **Recall** | `flicker-recall` | Search tickets, current documents, and historical memory with provenance labels |
 | **Triage** | `flicker-triage` | Group end-user suggestions, link accepted reports to tickets, and write reporter-facing rejections |
 | **Health watchdog** | `flicker-health-watchdog` | Read live Flicker infrastructure state and report evidence without mutation |
 
-The full contract — canonical statuses, transitions, document kinds, the PR + review loop, and every stage procedure — is in [workflow.md](workflow.md).
+Each stage skill is a short numbered procedure in which every step ends on a "Done when" test, written so cheap models can follow it. The shared contract (statuses, transitions, document templates, the five outcomes, asking rules, review and danger-zone gates) is in [workflow.md](workflow.md); stage steps reference its sections by name.
 
 ## Why it works for agents
 
@@ -43,7 +43,8 @@ The full contract — canonical statuses, transitions, document kinds, the PR + 
 - **Documents beat chat memory.** Plans, contracts, review verdicts, and release evidence are versioned documents attached to the ticket — the next agent (or the same agent after a context reset) reads current truth instead of reconstructing it.
 - **Memory is append-only evidence.** Decisions and discoveries land in project memory, searchable later, never silently rewritten.
 - **Approval gates are explicit.** No implementation before an approved contract; no merge/deploy without a human's explicit yes. Autonomy happens inside the rails, not instead of them.
-- **Review is rented, not built.** Any PR-reviewing bot (PR-Agent, Claude Code Action, …) plugs in through GitHub itself — the workflow reads its comments with `gh`, so the reviewer is swappable.
+- **Review is SHA-bound and swappable.** A review counts only for the head SHA it names: a PR reviewer's response through GitHub, or a `review` ticket document. Reviews check correctness and the spec (missing, unrequested, and wrong work) separately.
+- **Claims need tool results.** Every stage ends with one of five outcomes (`go`, `already done`, `rejected`, `needs a person`, `retry`) and reports only what a command result showed.
 
 ## Repository layout
 
