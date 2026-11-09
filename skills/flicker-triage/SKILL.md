@@ -20,9 +20,9 @@ Check each report, group reports by cause, link each group to one ticket, and an
 2. **Verify each claim.** Treat `summary` and `enrichment.candidates` as hints. Check each report against the product, the code, or the linked ticket. Done when: each report is marked confirmed, not reproduced, or not checkable, with what you checked.
 3. **Group by cause.** Cluster reports that share one underlying cause; similar wording alone is not a cluster. Done when: every report belongs to exactly one cluster.
 4. **Find existing work.** For each cluster, search tickets (including `in_progress` and recently done) and memory, including rejected-idea notes, by meaning. Done when: each cluster names a matching ticket or "no match" with the searches run.
-5. **Accept against one ticket.** Accept every report in a cluster against one ticket id. Create a `backlog` ticket only when no ticket covers the cluster; its body lists what is established and what is still needed. Done when: each accept call returned success.
-6. **Reject with a reason the reporter reads.** Reject only what will not be worked. Name their report, say what happens instead, stay kind. Already built is a rejection whose reason says where it is. Done when: each reject call returned success and no two reasons are boilerplate copies.
-7. **Rank and record.** Rank accepted clusters by report count, severity, blast radius, and source spread. Write a memory note per confirmed diagnosis and per rejected idea, with suggestion ids and a concept tag. Done when: the ranking and the memory ids are in your report.
+5. **Accept against one ticket.** Accept every report in a cluster against one ticket id. A cluster whose behavior is already built is accepted against the ticket that built it, done or not. Create a `backlog` ticket only when no ticket covers the cluster; its body lists what is established and what is still needed. Done when: each accept call returned success.
+6. **Reject with a reason the reporter reads.** Reject only what will not be worked. Name their report, say what happens instead, stay kind. Done when: each reject call returned success and no two reasons are boilerplate copies.
+7. **Rank and record.** Rank accepted clusters by report count, severity, blast radius, and source spread. Write a memory note per confirmed diagnosis, and per idea rejected on its merits (not per already-built report), with suggestion ids and a concept tag. Done when: the ranking and the memory ids are in your report.
 
 ## Required public commands
 

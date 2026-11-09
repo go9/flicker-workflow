@@ -14,6 +14,7 @@ EXPECTED = {
     "flicker-recall",
     "flicker-triage",
     "flicker-health-watchdog",
+    "flicker-review",
 }
 
 found = {path.parent.name for path in SKILLS.glob("*/SKILL.md")}
@@ -42,6 +43,17 @@ for name in sorted(EXPECTED - {"flicker-workflow", "flicker-health-watchdog"}):
 shared = (SKILLS / "flicker-workflow" / "SKILL.md").read_text()
 for stage in sorted(EXPECTED - {"flicker-workflow"}):
     assert f"## `/{stage}`" in shared, f"shared contract missing pointer for {stage}"
+
+# Gates the review of contract 2.0 found weakened: keep them explicit.
+for name, phrase in [
+    ("flicker-ship", "never write the `review` document"),
+    ("flicker-release", "`READY` requires a `review` document"),
+    ("flicker-review", "You must not be the author"),
+    ("flicker-workflow", "ticket documents never grant it"),
+    ("flicker-workflow", "--disposition superseded --superseded-by"),
+    ("flicker-test", "`REQUEST CHANGES` is `rejected`"),
+]:
+    assert phrase in (SKILLS / name / "SKILL.md").read_text(), f"{name}: lost gate: {phrase}"
 
 health = (SKILLS / "flicker-health-watchdog" / "SKILL.md").read_text()
 triage = (SKILLS / "flicker-triage" / "SKILL.md").read_text()

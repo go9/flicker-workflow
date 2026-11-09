@@ -10,9 +10,9 @@ Check the builder's work yourself and decide `PASS` or `REQUEST CHANGES` for one
 ## Stage contract
 
 - Use after `/flicker-implement` opened a PR. Code fixes go back to `/flicker-implement`; merges go to `/flicker-release`.
-- Authority: run tests and write `regression` and `test_verdict`. The `review` document belongs to the reviewer (`/flicker-review` or a PR reviewer), so read it and leave it as written.
+- Authority: run tests and write `regression` and `test_verdict`. The `review` document belongs to the reviewer (`flicker-review`, run by a separate session or a person), so read it and leave it as written.
 - The builder's notes are claims. Every verdict rests on commands you ran and files you read.
-- End with one outcome; the verdict is the evidence for it.
+- End with one outcome: `PASS` is `go`; `REQUEST CHANGES` is `rejected`, naming each blocker and its fix. A coordinator never proceeds on `REQUEST CHANGES`.
 
 ## Steps
 
@@ -21,7 +21,7 @@ Check the builder's work yourself and decide `PASS` or `REQUEST CHANGES` for one
 3. **Re-run the original failure.** For a bug fix, run the reproduction on the head SHA. Done when: the command and its passing output are recorded.
 4. **Prove each acceptance row.** Run each row's verification, including negative paths and, for UI, the rendered route and its states. Done when: every acceptance id maps to an expected proof and an actual result, or to an explicit missing-proof entry.
 5. **Check the tests themselves.** Compare changed test files against the base. Done when: no existing assertion was weakened, skipped, or deleted without an acceptance row that requires it; any that was is a blocker.
-6. **Check reviewer evidence.** Find a `review` document or PR review for the current head SHA (see *Review and danger-zone gates*). Done when: it exists with `Verdict: CLEAN`; a missing or stale review, or `FINDINGS`, is a blocker that asks for `/flicker-review` at this head.
+6. **Check reviewer evidence.** Read the ticket's `review` document (see *Review and danger-zone gates*). Done when: its `Head SHA` equals the PR's `headRefOid` and it reads `Verdict: CLEAN`. A missing or stale review, or `FINDINGS`, is a blocker whose fix is a `flicker-review` run at this head by a separate session.
 7. **Write the verdict.** Write `regression` and `test_verdict` from the templates. Keep in-scope blockers on this ticket. Done when: the verdict is exactly `PASS` or `REQUEST CHANGES` with the head SHA, and the next command is `/flicker-release <id>` or the blocker list.
 
 ## Required public commands

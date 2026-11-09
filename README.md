@@ -29,6 +29,7 @@ That's the entire setup. This repository is the editable canonical source; relea
 | **Plan** | `flicker-plan` | Check whether it already exists, shape the smallest useful scope, write `feature_brief` / `plan_consensus` / `task_contract`, ask the owner late and little, select approved work |
 | **Implement** | `flicker-implement` | Dedicated worktree, failing test first (proved by reverting the fix), code only the contract, open a PR, write `implementation_notes` |
 | **Test** | `flicker-test` | Re-check the builder's claims, map every acceptance row to evidence, check the current-head review, write a `test_verdict` |
+| **Review** | `flicker-review` | From a session that did not write the diff: review correctness and spec, write a SHA-bound `review` with `Verdict: CLEAN` or `FINDINGS` |
 | **Release** | `flicker-release` | Verify evidence, then merge **only with explicit human approval** (merge may deploy) |
 | **Ship** | `flicker-ship` | The autonomous end-to-end loop, inside safety rails: tests must be green, danger zones escalate to a human |
 | **Recall** | `flicker-recall` | Search tickets, current documents, and historical memory with provenance labels |
@@ -43,7 +44,7 @@ Each stage skill is a short numbered procedure in which every step ends on a "Do
 - **Documents beat chat memory.** Plans, contracts, review verdicts, and release evidence are versioned documents attached to the ticket — the next agent (or the same agent after a context reset) reads current truth instead of reconstructing it.
 - **Memory is append-only evidence.** Decisions and discoveries land in project memory, searchable later, never silently rewritten.
 - **Approval gates are explicit.** No implementation before an approved contract; no merge/deploy without a human's explicit yes. Autonomy happens inside the rails, not instead of them.
-- **Review is SHA-bound and swappable.** A review counts only for the head SHA it names: a PR reviewer's response through GitHub, or a `review` ticket document. Reviews check correctness and the spec (missing, unrequested, and wrong work) separately.
+- **Review is SHA-bound and swappable.** A review counts only as a `review` ticket document for the head SHA it names, written by a session that did not write the diff; a PR bot's comments are its input. Reviews check correctness and the spec (missing, unrequested, and wrong work) separately.
 - **Claims need tool results.** Every stage ends with one of five outcomes (`go`, `already done`, `rejected`, `needs a person`, `retry`) and reports only what a command result showed.
 
 ## Repository layout
