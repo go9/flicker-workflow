@@ -14,6 +14,7 @@ EXPECTED = {
     "flicker-recall",
     "flicker-triage",
     "flicker-health-watchdog",
+    "flicker-review",
 }
 
 found = {path.parent.name for path in SKILLS.glob("*/SKILL.md")}
@@ -26,6 +27,33 @@ for name in sorted(EXPECTED):
     assert re.search(r"^description: .+$", body, re.MULTILINE), f"{name}: missing description"
     assert "Generated from orlando-umbrella/flicker" not in body, f"{name}: still marked generated"
     assert "/Users/" not in body and "~/Sites/" not in body, f"{name}: private path leaked"
+    assert (SKILLS / f"{name}.md").read_text() == body, f"{name}: flat compatibility copy differs"
+
+# Stage skills are numbered procedures: every step ends on a checkable "Done when".
+for name in sorted(EXPECTED - {"flicker-workflow", "flicker-health-watchdog"}):
+    body = (SKILLS / name / "SKILL.md").read_text()
+    steps = re.search(r"^## Steps\n(.*?)(?=^## )", body, re.S | re.M)
+    assert steps, f"{name}: missing ## Steps"
+    numbered = re.findall(r"^\d+\. \*\*.+$", steps.group(1), re.M)
+    assert numbered, f"{name}: no numbered steps"
+    for step in numbered:
+        assert "Done when:" in step, f"{name}: step without a done test: {step[:60]}"
+    assert len(body.splitlines()) <= 100, f"{name}: core over 100 lines"
+
+shared = (SKILLS / "flicker-workflow" / "SKILL.md").read_text()
+for stage in sorted(EXPECTED - {"flicker-workflow"}):
+    assert f"## `/{stage}`" in shared, f"shared contract missing pointer for {stage}"
+
+# Gates the review of contract 2.0 found weakened: keep them explicit.
+for name, phrase in [
+    ("flicker-ship", "never write the `review` document"),
+    ("flicker-release", "`READY` requires a `review` document"),
+    ("flicker-review", "You must not be the author"),
+    ("flicker-workflow", "ticket documents never grant it"),
+    ("flicker-workflow", "--disposition superseded --superseded-by"),
+    ("flicker-test", "`REQUEST CHANGES` is `rejected`"),
+]:
+    assert phrase in (SKILLS / name / "SKILL.md").read_text(), f"{name}: lost gate: {phrase}"
 
 health = (SKILLS / "flicker-health-watchdog" / "SKILL.md").read_text()
 triage = (SKILLS / "flicker-triage" / "SKILL.md").read_text()
